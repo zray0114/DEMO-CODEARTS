@@ -555,3 +555,61 @@ public ResponseEntity<Map<String, Object>> checkAccount(@RequestParam String acc
 | GET | /api/auth/check-account | 检查账户是否存在 |
 
 ---
+
+### v1.0.8 (2026-04-09) - MyBatis Plus重构
+#### 重构内容
+1. **ORM框架替换**
+   - 从Spring Data JPA迁移到MyBatis Plus 3.5.5
+   - 移除JPA依赖和配置
+   - 添加MyBatis Plus依赖和配置
+
+2. **数据访问层重构**
+   - Repository替换为Mapper
+   - 继承BaseMapper获取基础CRUD
+   - 使用LambdaQueryWrapper构建查询
+
+3. **实体类优化**
+   - 使用MyBatis Plus注解
+   - @TableName指定表名
+   - @TableId配置主键策略
+   - @TableField自动填充配置
+
+4. **自动填充机制**
+   - 创建MyMetaObjectHandler
+   - 自动填充创建时间
+   - 自动填充更新时间
+   - 自动填充登录时间
+
+#### 技术优势
+- **性能提升**：启动速度更快
+- **SQL控制**：更灵活的SQL编写
+- **查询简化**：Lambda表达式查询
+- **代码简洁**：减少样板代码
+
+#### 配置示例
+```yaml
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+```
+
+#### 查询示例
+```java
+// Lambda查询
+User user = userMapper.selectOne(
+    new LambdaQueryWrapper<User>()
+        .eq(User::getAccount, account)
+);
+
+// 计数查询
+long count = userMapper.selectCount(
+    new LambdaQueryWrapper<User>()
+        .eq(User::getAccount, account)
+);
+```
+
+---

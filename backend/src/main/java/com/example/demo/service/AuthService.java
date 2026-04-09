@@ -1,28 +1,30 @@
 package com.example.demo.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.demo.config.SecurityConfig;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.LoginResponse;
 import com.example.demo.entity.LoginLog;
 import com.example.demo.entity.User;
-import com.example.demo.repository.LoginLogRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.mapper.LoginLogMapper;
+import com.example.demo.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.UUID;
 
 @Service
 public class AuthService {
     
     @Autowired
-    private UserRepository userRepository;
+    private UserMapper userMapper;
     
     @Autowired
-    private LoginLogRepository loginLogRepository;
+    private LoginLogMapper loginLogMapper;
     
     @Autowired
     private SecurityConfig securityConfig;
@@ -33,7 +35,9 @@ public class AuthService {
         String password = request.getPassword();
         
         // 查找用户
-        User user = userRepository.findByAccount(account).orElse(null);
+        User user = userMapper.selectOne(
+            new LambdaQueryWrapper<User>().eq(User::getAccount, account)
+        );
         
         if (user == null) {
             saveLoginLog(null, account, "FAILED", ip, "账户不存在", userAgent);
@@ -67,7 +71,7 @@ public class AuthService {
         
         // 更新最后登录时间
         user.setLastLoginTime(LocalDateTime.now());
-        userRepository.save(user);
+        userMapper.updateById(user);
         
         // 生成token
         String token = UUID.randomUUID().toString();
@@ -82,23 +86,26 @@ public class AuthService {
     // 更新密码
     @Transactional
     public boolean updatePassword(Long userId, String newPassword) {
-        User user = userRepository.findById(userId).orElse(null);
+        User user = userMapper.selectById(userId);
         if (user == null) {
             return false;
         }
         user.setPassword(newPassword);
         user.setLastLoginTime(LocalDateTime.now());
-        userRepository.save(user);
+        userMapper.updateById(user);
         return true;
     }
     
     // 注册用户
     @Transactional
     public Map<String, Object> register(String account, String password, String username) {
-        Map<String, Object> result = new java.util.HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         
         // 检查账户是否已存在
-        if (userRepository.findByAccount(account).isPresent()) {
+        User existUser = userMapper.selectOne(
+            new LambdaQueryWrapper<User>().eq(User::getAccount, account)
+        );
+        if (existUser != null) {
             result.put("success", false);
             result.put("message", "账户已存在");
             return result;
@@ -111,18 +118,20 @@ public class AuthService {
         user.setUsername(username != null && !username.isEmpty() ? username : account);
         user.setLastLoginTime(LocalDateTime.now());
         
-        User savedUser = userRepository.save(user);
+        int rows = userMapper.insert(user);
         
-        result.put("success", true);
-        result.put("message", "注册成功");
-        result.put("userId", savedUser.getId());
+        result.put("success", rows > 0);
+        result.put("message", rows > 0 ? "注册成功" : "注册失败");
+        result.put("userId", user.getId());
         
         return result;
     }
     
     // 检查账户是否存在
     public boolean checkAccountExists(String account) {
-        return userRepository.findByAccount(account).isPresent();
+        return userMapper.selectCount(
+            new LambdaQueryWrapper<User>().eq(User::getAccount, account)
+        ) > 0;
     }
     
     private void saveLoginLog(Long userId, String account, String status, String ip, String message, String userAgent) {
@@ -133,6 +142,6 @@ public class AuthService {
         log.setLoginIp(ip);
         log.setLoginMessage(message);
         log.setUserAgent(userAgent);
-        loginLogRepository.save(log);
+        loginLogMapper.insert(log);
     }
 }

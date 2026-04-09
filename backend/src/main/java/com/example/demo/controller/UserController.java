@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.demo.config.SecurityConfig;
 import com.example.demo.entity.User;
+import com.example.demo.mapper.UserMapper;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,9 @@ import java.util.HashMap;
 public class UserController {
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private UserMapper userMapper;
     
     @Autowired
     private SecurityConfig securityConfig;
@@ -60,20 +65,19 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> resetPassword(@PathVariable Long id) {
         Map<String, Object> result = new HashMap<>();
         
-        return userService.findById(id)
-                .map(user -> {
-                    String defaultPassword = securityConfig.getDefaultPassword();
-                    user.setPassword(defaultPassword);
-                    userService.save(user);
-                    result.put("success", true);
-                    result.put("message", "密码已重置为默认密码");
-                    result.put("defaultPassword", defaultPassword);
-                    return ResponseEntity.ok(result);
-                })
-                .orElseGet(() -> {
-                    result.put("success", false);
-                    result.put("message", "用户不存在");
-                    return ResponseEntity.ok(result);
-                });
+        User user = userMapper.selectById(id);
+        if (user != null) {
+            String defaultPassword = securityConfig.getDefaultPassword();
+            user.setPassword(defaultPassword);
+            userMapper.updateById(user);
+            result.put("success", true);
+            result.put("message", "密码已重置为默认密码");
+            result.put("defaultPassword", defaultPassword);
+        } else {
+            result.put("success", false);
+            result.put("message", "用户不存在");
+        }
+        
+        return ResponseEntity.ok(result);
     }
 }
