@@ -49,11 +49,45 @@
       </div>
 
       <div class="action-cards">
-        <div class="action-card" @click="goToUsers">
+        <div class="action-card" @click="router.push('/users')">
           <div class="card-icon">👥</div>
           <h3 class="card-title">用户管理</h3>
-          <p class="card-desc">管理系统用户，支持增删改查操作</p>
-          <div class="card-arrow">→</div>
+          <p class="card-desc">管理系统用户</p>
+        </div>
+        <div class="action-card" @click="router.push('/water-fee')">
+          <div class="card-icon">💧</div>
+          <h3 class="card-title">水费管理</h3>
+          <p class="card-desc">水费缴费记录</p>
+        </div>
+        <div class="action-card" @click="router.push('/electricity-fee')">
+          <div class="card-icon">⚡</div>
+          <h3 class="card-title">电费管理</h3>
+          <p class="card-desc">电费缴费记录</p>
+        </div>
+        <div class="action-card" @click="router.push('/gas-fee')">
+          <div class="card-icon">🔥</div>
+          <h3 class="card-title">天然气费管理</h3>
+          <p class="card-desc">天然气费缴费记录</p>
+        </div>
+        <div class="action-card" @click="router.push('/property-fee')">
+          <div class="card-icon">🏢</div>
+          <h3 class="card-title">物业费管理</h3>
+          <p class="card-desc">物业费缴费记录</p>
+        </div>
+        <div class="action-card" @click="router.push('/tenant')">
+          <div class="card-icon">🏠</div>
+          <h3 class="card-title">租户管理</h3>
+          <p class="card-desc">租户信息管理</p>
+        </div>
+        <div class="action-card" @click="router.push('/fee-share')">
+          <div class="card-icon">📊</div>
+          <h3 class="card-title">费用分摊</h3>
+          <p class="card-desc">计算费用分摊</p>
+        </div>
+        <div class="action-card" @click="router.push('/menu')">
+          <div class="card-icon">📋</div>
+          <h3 class="card-title">菜单管理</h3>
+          <p class="card-desc">系统菜单配置</p>
         </div>
       </div>
     </main>
@@ -74,17 +108,13 @@ const loadUser = () => {
   }
 }
 
-const goToUsers = () => {
-  router.push('/users')
-}
-
-const goToLogin = () => {
-  router.push('/login')
-}
-
 const handleLogout = () => {
   localStorage.removeItem('user')
   currentUser.value = null
+  router.push('/login')
+}
+
+const goToLogin = () => {
   router.push('/login')
 }
 

@@ -27,6 +27,48 @@ const router = createRouter({
       name: 'users',
       component: () => import('@/views/UserView.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/water-fee',
+      name: 'waterFee',
+      component: () => import('@/views/WaterFeeView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/electricity-fee',
+      name: 'electricityFee',
+      component: () => import('@/views/ElectricityFeeView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/gas-fee',
+      name: 'gasFee',
+      component: () => import('@/views/GasFeeView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/property-fee',
+      name: 'propertyFee',
+      component: () => import('@/views/PropertyFeeView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/tenant',
+      name: 'tenant',
+      component: () => import('@/views/TenantView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/fee-share',
+      name: 'feeShare',
+      component: () => import('@/views/FeeShareView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/menu',
+      name: 'menu',
+      component: () => import('@/views/MenuView.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })
